@@ -128,6 +128,7 @@ export default function InvoicesPage() {
                     <td>
                       <div style={{ display: 'flex', gap: 6 }}>
                         {inv.status === 'open' && <>
+                          <button className="btn btn-ghost btn-sm" onClick={() => navigate(`/edit/${inv.id}`)}>Sửa</button>
                           <button className="btn btn-success btn-sm" onClick={() => handleStatus(inv.id, 'paid')}>Thanh toán</button>
                           <button className="btn btn-danger btn-sm" onClick={() => handleStatus(inv.id, 'cancelled')}>Huỷ</button>
                         </>}
@@ -148,12 +149,13 @@ export default function InvoicesPage() {
       {/* Detail Modal */}
       {detail && <InvoiceDetail invoice={detail} onClose={() => setDetail(null)}
         onStatusChange={(id, s) => { handleStatus(id, s); setDetail(null) }}
-        onDelete={(id) => handleDelete(id)} />}
+        onDelete={(id) => handleDelete(id)}
+        onEdit={(id) => navigate(`/edit/${id}`)} />}
     </div>
   )
 }
 
-function InvoiceDetail({ invoice, onClose, onStatusChange, onDelete }) {
+function InvoiceDetail({ invoice, onClose, onStatusChange, onDelete, onEdit }) {
   const fmt = (n) => new Intl.NumberFormat('vi-VN').format(n) + '₫'
   return (
     <div className="modal-backdrop" onClick={e => e.target === e.currentTarget && onClose()}>
@@ -204,6 +206,7 @@ function InvoiceDetail({ invoice, onClose, onStatusChange, onDelete }) {
         </div>
         <div className="modal-footer">
           {invoice.status === 'open' && <>
+            <button className="btn btn-ghost" onClick={() => onEdit(invoice.id)}>✏️ Sửa món</button>
             <button className="btn btn-danger" onClick={() => onStatusChange(invoice.id, 'cancelled')}>Huỷ hóa đơn</button>
             <button className="btn btn-success" onClick={() => onStatusChange(invoice.id, 'paid')}>✓ Thanh toán</button>
           </>}

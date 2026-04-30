@@ -80,6 +80,36 @@ export const invoicesApi = {
     return { data: updated, error: updateError }
   },
 
+  update: async (id, invoiceData, items) => {
+    const { error: invError } = await supabase
+      .from('invoices')
+      .update({ table_number: invoiceData.table_number, note: invoiceData.note })
+      .eq('id', id)
+    if (invError) return { error: invError }
+
+    const { error: delError } = await supabase
+      .from('invoice_items').delete().eq('invoice_id', id)
+    if (delError) return { error: delError }
+
+    const itemsToInsert = items.map(item => ({
+      invoice_id: id,
+      menu_item_id: item.menu_item_id,
+      menu_item_name: item.name,
+      menu_item_price: item.price,
+      quantity: item.quantity,
+      subtotal: item.price * item.quantity,
+    }))
+    const total = itemsToInsert.reduce((s, i) => s + i.subtotal, 0)
+
+    const { error: itemsError } = await supabase.from('invoice_items').insert(itemsToInsert)
+    if (itemsError) return { error: itemsError }
+
+    const { data, error } = await supabase
+      .from('invoices').update({ total }).eq('id', id)
+      .select('*, invoice_items(*)').single()
+    return { data, error }
+  },
+
   updateStatus: (id, status) =>
     supabase
       .from('invoices')
