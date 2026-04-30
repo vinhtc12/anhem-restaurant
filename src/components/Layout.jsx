@@ -5,6 +5,7 @@ const NAV = [
   { to: '/', icon: '🧾', label: 'Hóa Đơn' },
   { to: '/new', icon: '＋', label: 'Tạo Hóa Đơn' },
   { to: '/menu', icon: '🍜', label: 'Quản Lý Món' },
+  { to: '/settings', icon: '⚙️', label: 'Cài Đặt' },
 ]
 
 export default function Layout({ children }) {

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { invoicesApi } from '../lib/supabase'
 import { useToast } from '../components/Toast'
+import { printInvoice } from '../lib/printReceipt'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
 
@@ -126,13 +127,14 @@ export default function InvoicesPage() {
                       {format(new Date(inv.created_at), 'dd/MM HH:mm', { locale: vi })}
                     </td>
                     <td>
-                      <div style={{ display: 'flex', gap: 6 }}>
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                         {inv.status === 'open' && <>
                           <button className="btn btn-ghost btn-sm" onClick={() => navigate(`/edit/${inv.id}`)}>Sửa</button>
                           <button className="btn btn-success btn-sm" onClick={() => handleStatus(inv.id, 'paid')}>Thanh toán</button>
                           <button className="btn btn-danger btn-sm" onClick={() => handleStatus(inv.id, 'cancelled')}>Huỷ</button>
                         </>}
                         <button className="btn btn-ghost btn-sm" onClick={() => setDetail(inv)}>Chi tiết</button>
+                        <button className="btn btn-ghost btn-sm" onClick={() => printInvoice(inv)}>🖨️</button>
                         {inv.status !== 'open' && (
                           <button className="btn btn-danger btn-sm" onClick={() => handleDelete(inv.id)}>Xoá</button>
                         )}
@@ -213,6 +215,7 @@ function InvoiceDetail({ invoice, onClose, onStatusChange, onDelete, onEdit }) {
           {invoice.status !== 'open' && (
             <button className="btn btn-danger" onClick={() => onDelete(invoice.id)}>Xoá</button>
           )}
+          <button className="btn btn-ghost" onClick={() => printInvoice(invoice)}>🖨️ In</button>
           <button className="btn btn-ghost" onClick={onClose}>Đóng</button>
         </div>
       </div>

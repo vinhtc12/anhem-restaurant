@@ -6,6 +6,7 @@ import InvoicesPage from './pages/InvoicesPage'
 import NewInvoicePage from './pages/NewInvoicePage'
 import EditInvoicePage from './pages/EditInvoicePage'
 import MenuPage from './pages/MenuPage'
+import SettingsPage from './pages/SettingsPage'
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
           <Route path="/new" element={<NewInvoicePage />} />
           <Route path="/edit/:id" element={<EditInvoicePage />} />
           <Route path="/menu" element={<MenuPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
         </Routes>
       </Layout>
     </ToastProvider>
