@@ -73,12 +73,36 @@ export default function NewInvoicePage() {
 
   return (
     <div className="animate-in">
+      <style>{`
+        .invoice-grid {
+          display: grid;
+          grid-template-columns: 1fr 360px;
+          gap: 20px;
+          align-items: start;
+        }
+        .cart-sticky {
+          position: sticky;
+          top: 20px;
+        }
+        @media (max-width: 640px) {
+          .invoice-grid {
+            grid-template-columns: 1fr;
+          }
+          .cart-sticky {
+            position: static;
+          }
+          .invoice-title {
+            font-size: 1.4rem !important;
+          }
+        }
+      `}</style>
+
       <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontFamily: 'Playfair Display', fontSize: '1.8rem', color: 'var(--gold)' }}>Tạo Hóa Đơn</h1>
+        <h1 className="invoice-title" style={{ fontFamily: 'Playfair Display', fontSize: '1.8rem', color: 'var(--gold)' }}>Tạo Hóa Đơn</h1>
         <p style={{ color: 'var(--text3)', fontSize: '0.85rem', marginTop: 2 }}>Chọn món và xác nhận để tạo hóa đơn mới</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 20, alignItems: 'start' }}>
+      <div className="invoice-grid">
         {/* Left: Menu */}
         <div>
           {/* Info */}
@@ -150,7 +174,7 @@ export default function NewInvoicePage() {
         </div>
 
         {/* Right: Cart */}
-        <div style={{ position: 'sticky', top: 20 }}>
+        <div className="cart-sticky">
           <div className="card">
             <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: 16,
               paddingBottom: 12, borderBottom: '1px solid var(--border)', color: 'var(--gold)' }}>
