@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { menuItemsApi, categoriesApi } from '../lib/supabase'
 import { useToast } from '../components/Toast'
 
@@ -208,7 +209,7 @@ export default function MenuPage() {
       </div>
 
       {/* Add/Edit Item Modal */}
-      {modal && (
+      {modal && createPortal(
         <div className="modal-backdrop" onClick={e => e.target === e.currentTarget && closeModal()}>
           <div className="modal" style={{ maxWidth: 440 }}>
             <div className="modal-header">
@@ -264,10 +265,10 @@ export default function MenuPage() {
             </div>
           </div>
         </div>
-      )}
+      , document.body)}
 
       {/* Category Management Modal */}
-      {catModal && (
+      {catModal && createPortal(
         <div className="modal-backdrop" onClick={e => e.target === e.currentTarget && setCatModal(false)}>
           <div className="modal" style={{ maxWidth: 400 }}>
             <div className="modal-header">
@@ -318,7 +319,7 @@ export default function MenuPage() {
             </div>
           </div>
         </div>
-      )}
+      , document.body)}
     </div>
   )
 }
