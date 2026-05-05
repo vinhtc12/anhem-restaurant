@@ -9,6 +9,25 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
+// ---- Categories ----
+export const categoriesApi = {
+  getAll: () =>
+    supabase.from('categories').select('*').order('name'),
+
+  create: (name) =>
+    supabase.from('categories').insert({ name }).select().single(),
+
+  update: async (id, oldName, newName) => {
+    const { error } = await supabase.from('categories').update({ name: newName }).eq('id', id)
+    if (error) return { error }
+    await supabase.from('menu_items').update({ category: newName }).eq('category', oldName)
+    return {}
+  },
+
+  delete: (id) =>
+    supabase.from('categories').delete().eq('id', id),
+}
+
 // ---- Menu Items ----
 export const menuItemsApi = {
   getAll: () =>
