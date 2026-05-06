@@ -41,13 +41,17 @@ export default function NewInvoicePage() {
       const existing = prev.find(c => c.menu_item_id === item.id)
       if (existing) return prev.map(c => c.menu_item_id === item.id
         ? { ...c, quantity: c.quantity + 1 } : c)
-      return [...prev, { menu_item_id: item.id, name: item.name, price: item.price, quantity: 1 }]
+      return [...prev, { menu_item_id: item.id, name: item.name, price: item.price, quantity: 1, marketPrice: item.price === 0 }]
     })
   }
 
   function updateQty(id, qty) {
     if (qty <= 0) setCart(prev => prev.filter(c => c.menu_item_id !== id))
     else setCart(prev => prev.map(c => c.menu_item_id === id ? { ...c, quantity: qty } : c))
+  }
+
+  function updatePrice(id, val) {
+    setCart(prev => prev.map(c => c.menu_item_id === id ? { ...c, price: Number(val) || 0 } : c))
   }
 
   function removeFromCart(id) {
@@ -58,6 +62,10 @@ export default function NewInvoicePage() {
 
   async function handleSubmit() {
     if (cart.length === 0) { toast('Vui lòng chọn ít nhất 1 món', 'error'); return }
+    const missingPrice = cart.filter(c => c.marketPrice && c.price === 0)
+    if (missingPrice.length > 0) {
+      if (!confirm(`Các món sau chưa nhập giá: ${missingPrice.map(c => c.name).join(', ')}. Vẫn tiếp tục?`)) return
+    }
     setLoading(true)
     const { data, error } = await invoicesApi.create(
       { table_number: tableNumber, note, status: 'open' },
@@ -160,7 +168,9 @@ export default function NewInvoicePage() {
                     <div style={{ fontSize: '0.65rem', color: 'var(--text3)', marginBottom: 4,
                       textTransform: 'uppercase', letterSpacing: 0.5 }}>{item.category}</div>
                     <div style={{ fontWeight: 600, fontSize: '0.9rem', lineHeight: 1.3, marginBottom: 8 }}>{item.name}</div>
-                    <div style={{ color: 'var(--gold)', fontWeight: 700, fontSize: '0.95rem' }}>{fmt(item.price)}</div>
+                    <div style={{ fontWeight: 700, fontSize: '0.95rem', color: item.price > 0 ? 'var(--gold)' : 'var(--text3)' }}>
+                      {item.price > 0 ? fmt(item.price) : 'Theo giá'}
+                    </div>
                   </div>
                 )
               })}
@@ -199,7 +209,16 @@ export default function NewInvoicePage() {
                         whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {item.name}
                       </div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text3)' }}>{fmt(item.price)}</div>
+                      {item.marketPrice ? (
+                        <input type="number" placeholder="Nhập giá..." value={item.price || ''}
+                          onChange={e => updatePrice(item.menu_item_id, e.target.value)}
+                          onClick={e => e.stopPropagation()}
+                          style={{ width: 100, fontSize: '0.75rem', background: 'var(--bg3)',
+                            border: '1px solid var(--border2)', borderRadius: 4, padding: '2px 6px',
+                            color: 'var(--gold)', fontFamily: 'inherit', outline: 'none', marginTop: 2 }} />
+                      ) : (
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text3)' }}>{fmt(item.price)}</div>
+                      )}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
                       <button onClick={() => updateQty(item.menu_item_id, item.quantity - 1)}
