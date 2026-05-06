@@ -16,6 +16,7 @@ export default function EditInvoicePage() {
   const [pageLoading, setPageLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('all')
+  const [qtyInputs, setQtyInputs] = useState({})
   const toast = useToast()
   const navigate = useNavigate()
 
@@ -39,12 +40,14 @@ export default function EditInvoicePage() {
       setTableNumber(inv.table_number || '')
       setNote(inv.note || '')
       setInvoiceNumber(inv.invoice_number)
+      const menuData = menuRes.data || []
       setCart((inv.invoice_items || []).map(item => ({
         menu_item_id: item.menu_item_id,
         name: item.menu_item_name,
         price: item.menu_item_price,
         quantity: item.quantity,
         marketPrice: item.menu_item_price === 0,
+        unit: menuData.find(m => m.id === item.menu_item_id)?.unit || '',
       })))
       setPageLoading(false)
     })
@@ -64,7 +67,7 @@ export default function EditInvoicePage() {
       const existing = prev.find(c => c.menu_item_id === item.id)
       if (existing) return prev.map(c => c.menu_item_id === item.id
         ? { ...c, quantity: c.quantity + 1 } : c)
-      return [...prev, { menu_item_id: item.id, name: item.name, price: item.price, quantity: 1, marketPrice: item.price === 0 }]
+      return [...prev, { menu_item_id: item.id, name: item.name, price: item.price, quantity: 1, marketPrice: item.price === 0, unit: item.unit || '' }]
     })
   }
 
@@ -79,6 +82,14 @@ export default function EditInvoicePage() {
 
   function removeFromCart(id) {
     setCart(prev => prev.filter(c => c.menu_item_id !== id))
+  }
+
+  function commitQty(id) {
+    const raw = qtyInputs[id]
+    if (raw !== undefined) {
+      updateQty(id, parseFloat(raw) || 0)
+      setQtyInputs(prev => { const n = { ...prev }; delete n[id]; return n })
+    }
   }
 
   const total = cart.reduce((s, c) => s + c.price * c.quantity, 0)
@@ -199,7 +210,7 @@ export default function EditInvoicePage() {
           <div className="card">
             <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: 16,
               paddingBottom: 12, borderBottom: '1px solid var(--border)', color: 'var(--gold)' }}>
-              🛒 Giỏ hàng {cart.length > 0 && `(${cart.reduce((s, c) => s + c.quantity, 0)} món)`}
+              🛒 Giỏ hàng {cart.length > 0 && `(${cart.length} món)`}
             </div>
 
             {cart.length === 0 ? (
@@ -209,7 +220,9 @@ export default function EditInvoicePage() {
               </div>
             ) : (
               <div style={{ maxHeight: 400, overflowY: 'auto', marginBottom: 16 }}>
-                {cart.map(item => (
+                {cart.map(item => {
+                  const step = item.unit === 'kg' ? 0.1 : 1
+                  return (
                   <div key={item.menu_item_id} style={{
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                     padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.04)', gap: 10,
@@ -227,15 +240,18 @@ export default function EditInvoicePage() {
                           color: 'var(--gold)', fontFamily: 'inherit', outline: 'none', marginTop: 2 }} />
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-                      <button onClick={() => updateQty(item.menu_item_id, item.quantity - 1)}
+                      <button onClick={() => updateQty(item.menu_item_id, Math.round((item.quantity - step) * 1000) / 1000)}
                         style={{ width: 26, height: 26, borderRadius: 6, border: '1px solid var(--border)',
                           background: 'var(--bg3)', color: 'var(--text)', cursor: 'pointer', fontSize: '1rem' }}>−</button>
-                      <input type="number" value={item.quantity} min={1}
-                        onChange={e => updateQty(item.menu_item_id, parseInt(e.target.value) || 0)}
-                        style={{ width: 36, textAlign: 'center', background: 'transparent',
+                      <input type="number" value={qtyInputs[item.menu_item_id] ?? item.quantity}
+                        min={step} step={step}
+                        onChange={e => setQtyInputs(prev => ({ ...prev, [item.menu_item_id]: e.target.value }))}
+                        onBlur={() => commitQty(item.menu_item_id)}
+                        onKeyDown={e => e.key === 'Enter' && e.target.blur()}
+                        style={{ width: 44, textAlign: 'center', background: 'transparent',
                           border: 'none', color: 'var(--text)', fontWeight: 600, fontSize: '0.9rem',
                           fontFamily: 'inherit', outline: 'none' }} />
-                      <button onClick={() => updateQty(item.menu_item_id, item.quantity + 1)}
+                      <button onClick={() => updateQty(item.menu_item_id, Math.round((item.quantity + step) * 1000) / 1000)}
                         style={{ width: 26, height: 26, borderRadius: 6, border: '1px solid var(--border)',
                           background: 'var(--bg3)', color: 'var(--text)', cursor: 'pointer', fontSize: '1rem' }}>＋</button>
                       <button onClick={() => removeFromCart(item.menu_item_id)}
@@ -247,7 +263,7 @@ export default function EditInvoicePage() {
                       {fmt(item.price * item.quantity)}
                     </div>
                   </div>
-                ))}
+                )})}
               </div>
             )}
 
