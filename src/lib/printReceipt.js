@@ -52,6 +52,7 @@ export function printInvoice(invoice) {
     .receipt {
       font-family: 'Courier New', Courier, monospace;
       font-size: 11.5px;
+      font-weight: bold;
       width: 72mm;
       margin: 0 auto;
       padding: 6px 0;
@@ -74,11 +75,11 @@ export function printInvoice(invoice) {
     .ticket-title { text-align: right; }
     .ticket-title .main { font-weight: bold; font-size: 12px; }
     table { width: 100%; border-collapse: collapse; }
-    thead tr th { border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 3px 0; font-size: 11px; }
+    thead tr th { border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 3px 0; font-size: 11.5px; font-weight: bold; }
     th.name, td.name { text-align: left; width: 42%; }
-    td { padding: 2px 0; vertical-align: top; font-size: 11px; }
+    td { padding: 2px 0; vertical-align: top; font-size: 11.5px; font-weight: bold; }
     .totals td { padding: 1.5px 0; }
-    .grand td { font-weight: bold; font-size: 12.5px; }
+    .grand td { font-size: 13px; }
     .qr-img { display: block; margin: 8px auto; max-width: 110px; max-height: 110px; }
     .bank { font-size: 10px; margin-top: 4px; }
     .thanks { font-size: 12px; font-weight: bold; font-style: italic; margin-top: 6px; padding-bottom: 8px; }
