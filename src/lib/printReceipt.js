@@ -51,7 +51,7 @@ export function printInvoice(invoice) {
     body { background: #fff; }
     .receipt {
       font-family: 'Courier New', Courier, monospace;
-      font-size: 11.5px;
+      font-size: 13px;
       font-weight: bold;
       width: 72mm;
       margin: 0 auto;
@@ -62,27 +62,27 @@ export function printInvoice(invoice) {
     .center { text-align: center; }
     .right  { text-align: right; }
     .bold   { font-weight: bold; }
-    .name-header { font-size: 15px; font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
-    .tagline { font-size: 10px; margin-top: 2px; }
-    .phones  { font-size: 10.5px; margin-top: 2px; }
+    .name-header { font-size: 17px; font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
+    .tagline { font-size: 12px; margin-top: 2px; }
+    .phones  { font-size: 12px; margin-top: 2px; }
     .divider { border: none; border-top: 1px dashed #000; margin: 5px 0; }
     .solid   { border-top-style: solid; }
     .row2 { display: flex; justify-content: space-between; align-items: center; margin: 5px 0; }
     .badge {
       border: 1.5px solid #000; border-radius: 6px;
-      padding: 3px 8px; font-weight: bold; font-size: 11px; white-space: nowrap;
+      padding: 3px 8px; font-weight: bold; font-size: 13px; white-space: nowrap;
     }
     .ticket-title { text-align: right; }
-    .ticket-title .main { font-weight: bold; font-size: 12px; }
+    .ticket-title .main { font-weight: bold; font-size: 14px; }
     table { width: 100%; border-collapse: collapse; }
-    thead tr th { border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 3px 0; font-size: 11.5px; font-weight: bold; }
+    thead tr th { border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 3px 0; font-size: 13px; font-weight: bold; }
     th.name, td.name { text-align: left; width: 42%; }
-    td { padding: 2px 0; vertical-align: top; font-size: 11.5px; font-weight: bold; }
+    td { padding: 2px 0; vertical-align: top; font-size: 13px; font-weight: bold; }
     .totals td { padding: 1.5px 0; }
-    .grand td { font-size: 13px; }
+    .grand td { font-size: 15px; }
     .qr-img { display: block; margin: 8px auto; max-width: 110px; max-height: 110px; }
-    .bank { font-size: 10px; margin-top: 4px; }
-    .thanks { font-size: 12px; font-weight: bold; font-style: italic; margin-top: 6px; padding-bottom: 8px; }
+    .bank { font-size: 12px; margin-top: 4px; }
+    .thanks { font-size: 13px; font-weight: bold; font-style: italic; margin-top: 6px; padding-bottom: 8px; }
     @media print { body { margin: 0; } .receipt { padding: 0; } }
   </style>
 </head>
@@ -105,7 +105,7 @@ export function printInvoice(invoice) {
     </div>
   </div>
 
-  <div class="row2" style="font-size:10.5px">
+  <div class="row2" style="font-size:12px">
     <div>Giờ vào: ${formatDateTime(invoice.created_at)}</div>
     <div>Giờ in: ${formatTime(now)}</div>
   </div>
