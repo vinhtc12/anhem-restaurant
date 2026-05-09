@@ -59,16 +59,36 @@ export const invoicesApi = {
       .single(),
 
   create: async (invoiceData, items) => {
-    const count = await supabase
-      .from('invoices')
-      .select('id', { count: 'exact', head: true })
-    const num = String((count.count || 0) + 1).padStart(6, '0')
+    // Get latest invoice_number
+    const { data: lastInvoice, error: lastInvoiceError } = await supabase
+        .from('invoices')
+        .select('invoice_number')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single()
+    if (lastInvoiceError) {
+      return { error: lastInvoiceError }
+    }
+    // Default first number
+    let nextNumber = 1
 
+    if (lastInvoice?.invoice_number) {
+      const currentNum = parseInt(
+          lastInvoice.invoice_number.replace('HD', ''),
+          10
+      )
+      nextNumber = currentNum + 1
+    }
+    const invoiceNumber = `HD${String(nextNumber).padStart(6, '0')}`
+    // Create invoice
     const { data: invoice, error } = await supabase
-      .from('invoices')
-      .insert({ ...invoiceData, invoice_number: `HD${num}` })
-      .select()
-      .single()
+        .from('invoices')
+        .insert({
+          ...invoiceData,
+          invoice_number: invoiceNumber,
+        })
+        .select()
+        .single()
 
     if (error) return { error }
 
