@@ -1,3 +1,5 @@
+import { settingsApi } from './supabase'
+
 const KEY = 'restaurant_settings'
 
 const DEFAULTS = {
@@ -12,10 +14,8 @@ const DEFAULTS = {
   qrCode: '',
 }
 
-export function getSettings() {
+function fromStored(stored) {
   try {
-    const stored = localStorage.getItem(KEY)
-    if (!stored) return { ...DEFAULTS }
     const parsed = JSON.parse(stored)
     const result = {}
     for (const [key, def] of Object.entries(DEFAULTS)) {
@@ -28,6 +28,27 @@ export function getSettings() {
   }
 }
 
-export function saveSettings(settings) {
+// Sync read from localStorage cache — fast, used for initial render
+export function getSettings() {
+  try {
+    const stored = localStorage.getItem(KEY)
+    if (!stored) return { ...DEFAULTS }
+    return fromStored(stored)
+  } catch {
+    return { ...DEFAULTS }
+  }
+}
+
+// Async read from DB — authoritative, updates localStorage cache
+export async function getSettingsAsync() {
+  const { data, error } = await settingsApi.get()
+  if (error || !data) return getSettings()
+  localStorage.setItem(KEY, JSON.stringify(data))
+  return data
+}
+
+// Save to DB (source of truth) and localStorage cache
+export async function saveSettings(settings) {
   localStorage.setItem(KEY, JSON.stringify(settings))
+  return settingsApi.save(settings)
 }

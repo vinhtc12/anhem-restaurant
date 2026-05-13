@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react'
-import { getSettings, saveSettings } from '../lib/settings'
+import React, { useState, useRef, useEffect } from 'react'
+import { getSettings, getSettingsAsync, saveSettings } from '../lib/settings'
 import { useToast } from '../components/Toast'
 
 const BANKS = [
@@ -40,6 +40,10 @@ export default function SettingsPage() {
   const fileRef = useRef()
   const toast = useToast()
 
+  useEffect(() => {
+    getSettingsAsync().then(setForm)
+  }, [])
+
   function set(field, value) {
     setForm(prev => ({ ...prev, [field]: value }))
   }
@@ -58,10 +62,12 @@ export default function SettingsPage() {
     reader.readAsDataURL(file)
   }
 
-  function handleSave() {
+  async function handleSave() {
     setSaving(true)
-    saveSettings(form)
-    setTimeout(() => { setSaving(false); toast('Đã lưu cài đặt!') }, 300)
+    const { error } = await saveSettings(form)
+    setSaving(false)
+    if (error) toast('Lỗi lưu cài đặt!', 'error')
+    else toast('Đã lưu cài đặt!')
   }
 
   const field = (label, key, placeholder, hint) => (

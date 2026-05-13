@@ -1,4 +1,4 @@
-import { getSettings } from './settings'
+import { getSettingsAsync } from './settings'
 
 const fmtNum = (n) => Number(n).toLocaleString('en-US')
 
@@ -13,8 +13,8 @@ function formatTime(d) {
   return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`
 }
 
-export function printInvoice(invoice) {
-  const s = getSettings()
+export async function printInvoice(invoice) {
+  const s = await getSettingsAsync()
   const now = new Date()
 
   const bankLine = [s.bankOwner, s.bankAccount ? `STK ${s.bankAccount}` : '', s.bankName]

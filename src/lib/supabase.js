@@ -43,6 +43,46 @@ export const menuItemsApi = {
     supabase.from('menu_items').delete().eq('id', id),
 }
 
+// ---- Settings ----
+export const settingsApi = {
+  get: async () => {
+    const { data, error } = await supabase
+      .from('app_settings')
+      .select('*')
+      .eq('id', 1)
+      .single()
+    if (error || !data) return { error }
+    return {
+      data: {
+        name: data.name,
+        tagline: data.tagline,
+        phones: data.phones,
+        bankOwner: data.bank_owner,
+        bankAccount: data.bank_account,
+        bankId: data.bank_id,
+        bankName: data.bank_name,
+        thankYou: data.thank_you,
+        qrCode: data.qr_code,
+      },
+    }
+  },
+
+  save: (settings) =>
+    supabase.from('app_settings').upsert({
+      id: 1,
+      name: settings.name,
+      tagline: settings.tagline,
+      phones: settings.phones,
+      bank_owner: settings.bankOwner,
+      bank_account: settings.bankAccount,
+      bank_id: settings.bankId,
+      bank_name: settings.bankName,
+      thank_you: settings.thankYou,
+      qr_code: settings.qrCode,
+      updated_at: new Date().toISOString(),
+    }),
+}
+
 // ---- Invoices ----
 export const invoicesApi = {
   getAll: () =>
@@ -59,34 +99,12 @@ export const invoicesApi = {
       .single(),
 
   create: async (invoiceData, items) => {
-    // Get latest invoice_number
-    const { data: lastInvoice, error: lastInvoiceError } = await supabase
-        .from('invoices')
-        .select('invoice_number')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single()
-    if (lastInvoiceError) {
-      return { error: lastInvoiceError }
-    }
-    // Default first number
-    let nextNumber = 1
+    const { data: invoiceNumber, error: seqError } = await supabase.rpc('next_invoice_number')
+    if (seqError) return { error: seqError }
 
-    if (lastInvoice?.invoice_number) {
-      const currentNum = parseInt(
-          lastInvoice.invoice_number.replace('HD', ''),
-          10
-      )
-      nextNumber = currentNum + 1
-    }
-    const invoiceNumber = `HD${String(nextNumber).padStart(6, '0')}`
-    // Create invoice
     const { data: invoice, error } = await supabase
         .from('invoices')
-        .insert({
-          ...invoiceData,
-          invoice_number: invoiceNumber,
-        })
+        .insert({ ...invoiceData, invoice_number: invoiceNumber })
         .select()
         .single()
 
