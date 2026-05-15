@@ -2,7 +2,7 @@ import { settingsApi } from './supabase'
 
 const KEY = 'restaurant_settings'
 
-const DEFAULTS = {
+export const DEFAULTS = {
   name: 'NHÀ HÀNG HẢI SẢN ANH EM 304',
   tagline: 'CHUYÊN PHỤC VỤ CÁC MÓN HẢI SẢN BIỂN TƯƠI SỐNG',
   phones: '0947794868 - 0985899636',
@@ -42,7 +42,13 @@ export function getSettings() {
 // Async read from DB — authoritative, updates localStorage cache
 export async function getSettingsAsync() {
   const { data, error } = await settingsApi.get()
-  if (error || !data) return getSettings()
+  if (error) return getSettings()
+  if (!data) {
+    // Row doesn't exist yet — seed it from localStorage or DEFAULTS
+    const seed = getSettings()
+    await settingsApi.save(seed)
+    return seed
+  }
   localStorage.setItem(KEY, JSON.stringify(data))
   return data
 }

@@ -50,8 +50,9 @@ export const settingsApi = {
       .from('app_settings')
       .select('*')
       .eq('id', 1)
-      .single()
-    if (error || !data) return { error }
+      .maybeSingle()
+    if (error) return { error }
+    if (!data) return { data: null }
     return {
       data: {
         name: data.name,

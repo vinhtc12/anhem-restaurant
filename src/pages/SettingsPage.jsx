@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { getSettings, getSettingsAsync, saveSettings } from '../lib/settings'
+import { getSettings, getSettingsAsync, saveSettings, DEFAULTS } from '../lib/settings'
 import { useToast } from '../components/Toast'
 
 const BANKS = [
@@ -41,7 +41,18 @@ export default function SettingsPage() {
   const toast = useToast()
 
   useEffect(() => {
-    getSettingsAsync().then(setForm)
+    getSettingsAsync().then(dbSettings => {
+      const local = getSettings()
+      const dbIsDefault = Object.keys(DEFAULTS).every(k => dbSettings[k] === DEFAULTS[k])
+      const localIsCustom = Object.keys(DEFAULTS).some(k => local[k] !== DEFAULTS[k])
+      if (dbIsDefault && localIsCustom) {
+        // localStorage has custom settings that were never pushed to DB — migrate now
+        saveSettings(local)
+        setForm(local)
+      } else {
+        setForm(dbSettings)
+      }
+    })
   }, [])
 
   function set(field, value) {
