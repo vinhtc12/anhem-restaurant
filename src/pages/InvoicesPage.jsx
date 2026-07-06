@@ -9,6 +9,7 @@ import { vi } from 'date-fns/locale'
 const fmt = (n) => new Intl.NumberFormat('vi-VN').format(n) + '₫'
 
 const STATUS_LABEL = { open: 'Đang mở', paid: 'Đã thanh toán', cancelled: 'Đã huỷ' }
+const PAGE_SIZE = 20
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState([])
@@ -16,6 +17,7 @@ export default function InvoicesPage() {
   const [filter, setFilter] = useState('all')
   const [search, setSearch] = useState('')
   const [detail, setDetail] = useState(null)
+  const [page, setPage] = useState(1)
   const toast = useToast()
   const navigate = useNavigate()
 
@@ -49,6 +51,12 @@ export default function InvoicesPage() {
       inv.table_number?.toLowerCase().includes(search.toLowerCase())
     return matchFilter && matchSearch
   })
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const currentPage = Math.min(page, totalPages)
+  const paged = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+
+  useEffect(() => { setPage(1) }, [filter, search])
 
   const stats = {
     total: invoices.length,
@@ -111,7 +119,7 @@ export default function InvoicesPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map(inv => (
+                {paged.map(inv => (
                   <tr key={inv.id}>
                     <td>
                       <span style={{ color: 'var(--gold)', fontWeight: 600, cursor: 'pointer' }}
@@ -127,7 +135,7 @@ export default function InvoicesPage() {
                       {format(new Date(inv.created_at), 'dd/MM HH:mm', { locale: vi })}
                     </td>
                     <td>
-                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'nowrap' }}>
                         {inv.status === 'open' && <>
                           <button className="btn btn-ghost btn-sm" onClick={() => navigate(`/edit/${inv.id}`)}>Sửa</button>
                           <button className="btn btn-success btn-sm" onClick={() => handleStatus(inv.id, 'paid')}>Thanh toán</button>
@@ -147,6 +155,21 @@ export default function InvoicesPage() {
           </div>
         )}
       </div>
+
+      {/* Pagination */}
+      {!loading && filtered.length > 0 && totalPages > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 16 }}>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text3)' }}>
+            Trang {currentPage}/{totalPages} · {filtered.length} hóa đơn
+          </span>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button className="btn btn-ghost btn-sm" disabled={currentPage === 1}
+              onClick={() => setPage(p => Math.max(1, p - 1))}>‹ Trước</button>
+            <button className="btn btn-ghost btn-sm" disabled={currentPage === totalPages}
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}>Sau ›</button>
+          </div>
+        </div>
+      )}
 
       {/* Detail Modal */}
       {detail && <InvoiceDetail invoice={detail} onClose={() => setDetail(null)}

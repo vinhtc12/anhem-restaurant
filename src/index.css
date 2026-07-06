@@ -127,10 +127,10 @@ select.input option { background: var(--bg3); }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
 /* Table */
-.table-wrap { overflow-x: auto; }
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 table { width: 100%; border-collapse: collapse; }
-th { text-align: left; padding: 10px 14px; font-size: 0.75rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid var(--border); font-weight: 600; }
-td { padding: 13px 14px; font-size: 0.875rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+th { text-align: left; padding: 10px 14px; font-size: 0.75rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid var(--border); font-weight: 600; white-space: nowrap; }
+td { padding: 13px 14px; font-size: 0.875rem; border-bottom: 1px solid rgba(255,255,255,0.04); white-space: nowrap; }
 tr:hover td { background: rgba(255,255,255,0.02); }
 tr:last-child td { border-bottom: none; }
 
